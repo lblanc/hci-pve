@@ -72,6 +72,7 @@ mkfs.gfs2 -K -t $vdiskname -j $numnodes -J 64 $vdiskpartpath
 label=$(blkid $vdiskpartpath | sed -n 's/.*LABEL=\"\([^\"]*\)\".*/\1/p' )
 svcname=$(echo $mnt| sed 's/\//-/g' | sed 's/$/.mount/' |sed 's/^.//')
 
+uuid=$(blkid $vdiskpartpath | sed -n 's/.*UUID=\"\([^\"]*\)\".*/\1/p')
 
 cat > "./$svcname" <<EOT
 [Unit]
@@ -80,7 +81,7 @@ Requires=network-online.target iscsid.service dlm.service
 After=network-online.target iscsid.service dlm.service rescan-dc.service
 
 [Mount]
-What=/dev/disk/by-label/$label
+What=/dev/disk/by-partuuid/$uuid
 Where=$mnt
 Type=gfs2
 Options=_netdev,acl
