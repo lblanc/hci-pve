@@ -14,7 +14,7 @@ fi
 
 
 echo
-read -p "Enter vDisk naa (ex. 60030d9041d01a05b2c89e35133dd631)" -n 1 -r
+read -p "Enter vDisk naa (ex. 60030d9041d01a05b2c89e35133dd631)" -r
 echo
 
 echo $REPLY
