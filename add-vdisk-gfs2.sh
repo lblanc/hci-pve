@@ -93,6 +93,9 @@ EOT
 
 for item in ${nodes}; do
     scp ./$svcname  $item:/etc/systemd/system/$svcname 
+    ssh $item iscsiadm -m session --rescan
+    ssh $item multipath -r
+    ssh $item multipath -ll
     ssh $item "mkdir -p $mnt; systemctl daemon-reload; systemctl enable \"/etc/systemd/system/$svcname\" ; systemctl start $svcname"
 done
 
