@@ -11,3 +11,10 @@ if [[ ! $REPLY =~ ^[Yy]$ ]]
 then
     [[ "$0" = "$BASH_SOURCE" ]] && exit 1 || return 1
 fi
+
+
+echo
+read -p "Enter vDisk naa (ex. 60030d9041d01a05b2c89e35133dd631)" -n 1 -r
+echo
+
+echo $REPLY
