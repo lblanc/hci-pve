@@ -17,26 +17,26 @@ fi
 
 
 echo
-read -p "Enter vDisk naa (ex. 60030d9041d01a05b2c89e35133dd631)" -r
+read -p "Enter vDisk naa (ex. 60030d9041d01a05b2c89e35133dd631) " -r
 echo
 
 naa=$REPLY
 
 echo
-read -p "Number of nodes in cluster?" -r
+read -p "Number of nodes in cluster? " -r
 echo
 
 numnodes=$REPLY
 
 echo
-read -p "IP list of nodes in cluster? ex. '10.0.0.1 10.0.0.2'" -r
+read -p "IP list of nodes in cluster? ex. '10.0.0.1 10.0.0.2' " -r
 echo
 
 nodes=$REPLY
 
 
 echo
-read -p "vDisk Name? (ex. DC_VOL5_GFS2)" -r
+read -p "vDisk Name? (ex. DC_VOL5_GFS2) DO NOT USE '-' " -r
 echo
 
 vdiskname=$REPLY
