@@ -13,31 +13,28 @@ fi
 
 
 echo
-read -p "Enter vDisk naa (ex. 60030d9041d01a05b2c89e35133dd631) " -r
+echo "Enter vDisk naa (ex. 60030d9041d01a05b2c89e35133dd631)"
+read -r
 echo
 
 naa=$REPLY
 
-echo
-read -p "Number of nodes in cluster? " -r
-echo
-
-numnodes=$REPLY
 
 echo
-read -p "IP list of nodes in cluster? ex. '10.0.0.1 10.0.0.2' " -r
+echo "vDisk Name? (ex. DC_VOL5_GFS2)"
+read -r
 echo
 
-nodes=$REPLY
-
-
-echo
-read -p "vDisk Name? (ex. DC_VOL5_GFS2) DO NOT USE '-' " -r
-echo
-
-vdiskname=$REPLY
+vdiskname=$(echo $REPLY | tr '-' '_')
 
 storagename=$vdiskname
+
+
+numnodes=$(pvecm status | grep 'Nodes:' | awk '{print $2}')
+
+nodes=$(pvecm status | grep 'A,V,NMW' | awk '{print $4}')
+
+
 
 for item in ${nodes}; do
      ssh $item iscsiadm -m session --rescan
@@ -46,10 +43,7 @@ for item in ${nodes}; do
 done
 
 
-vdiskid=$(multipath -ll |grep $naa | sed 's/^\([^ ]*\).*/\1/')
-
-sgdisk -N 1 /dev/mapper/$vdiskid
-
+vdiskid=$(multipath -ll | grep $naa | awk '{print $1}')
 
 
 mnt="/mnt/pve/$vdiskname"
@@ -57,18 +51,20 @@ mnt="/mnt/pve/$vdiskname"
 clustername=$(pvecm status | grep 'Name:' | awk '{print $2}')
 
 vdiskname="$clustername:$vdiskname"
-vdiskpartpath="/dev/mapper/$vdiskid-part1"
+#vdiskpartpath="/dev/mapper/$vdiskid-part1"
 
 
 # -K
 # Keep, do not attempt to discard blocks at mkfs time (discarding blocks initially is useful on solid state devices and sparse / thin-provisioned storage).
 
-mkfs.gfs2 -K -t $vdiskname -j $numnodes -J 64 $vdiskpartpath
 
-label=$(blkid $vdiskpartpath | sed -n 's/.*LABEL=\"\([^\"]*\)\".*/\1/p' )
+mkfs.gfs2 -K -t $vdiskname -j $numnodes -J 64 /dev/mapper/$vdiskid
+
+label=$(blkid /dev/mapper/$vdiskid | sed -n 's/.*LABEL=\"\([^\"]*\)\".*/\1/p' )
+
 svcname=$(echo $mnt| sed 's/\//-/g' | sed 's/$/.mount/' |sed 's/^.//')
 
-uuid=$(blkid $vdiskpartpath | sed -n 's/.*UUID=\"\([^\"]*\)\".*/\1/p')
+uuid=$(udevadm info --query=all --name=/dev/mapper/$vdiskid | awk -F '=' '/DM_UUID/{print $2}')
 
 cat > "./$svcname" <<EOT
 [Unit]
@@ -77,7 +73,7 @@ Requires=network-online.target iscsid.service dlm.service
 After=network-online.target iscsid.service dlm.service rescan-dc.service
 
 [Mount]
-What=/dev/disk/by-partuuid/$uuid
+What=/dev/disk/by-id/dm-uuid-$uuid
 Where=$mnt
 Type=gfs2
 Options=_netdev,acl
