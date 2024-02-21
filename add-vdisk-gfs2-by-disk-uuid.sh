@@ -1,9 +1,5 @@
 #!/bin/bash
 
-######################
-#  add-vdisk-gfs2.sh #
-######################
-
 
 echo
 echo "This script will add DataCore vDisk to a PVE Cluster as a GFS2"
