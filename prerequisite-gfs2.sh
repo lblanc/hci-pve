@@ -13,12 +13,8 @@ then
     [[ "$0" = "$BASH_SOURCE" ]] && exit 1 || return 1
 fi
 
-echo
-read -p "IP list of nodes in cluster? ex. '10.0.0.1 10.0.0.2'" -r
-echo
 
-nodes=$REPLY
-
+nodes=$(pvecm status | grep 'A,V,NMW' | awk '{print $4}')
 
 for item in ${nodes}; do
      ssh $item apt install dlm-controld gfs2-utils -y
